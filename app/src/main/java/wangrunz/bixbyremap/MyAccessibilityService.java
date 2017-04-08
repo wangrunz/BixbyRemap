@@ -20,8 +20,6 @@ import java.util.List;
 
 public class MyAccessibilityService extends AccessibilityService {
 
-    private static final List<Integer> keyCodeList = Arrays.asList(24,25);
-
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         Log.d("AccessibilityEvent",event.toString());
@@ -43,16 +41,9 @@ public class MyAccessibilityService extends AccessibilityService {
     protected boolean onKeyEvent(KeyEvent event) {
         int action = event.getAction();
         int keyCode = event.getKeyCode();
-        Log.d("KeyCode",String.valueOf(keyCode)+" "+String.valueOf(action));
         if (action == KeyEvent.ACTION_DOWN){
             SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key),MODE_PRIVATE);
-            int sourceKeyCode = sharedPreferences.getInt(
-                    getString(R.string.source_button_id),
-                    Integer.valueOf(getString(R.string.bixby_button_code)));
-            if (!keyCodeList.contains(sourceKeyCode)){
-                sourceKeyCode=Integer.valueOf(getString(R.string.bixby_button_code));
-            }
-            if (keyCode == sourceKeyCode){
+            if (keyCode == 1082){
 
                 String activityName = sharedPreferences.getString(getString(R.string.target_activity_name), null);
                 String packageName = sharedPreferences.getString(getString(R.string.target_package_name), null);

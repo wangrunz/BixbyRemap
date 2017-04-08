@@ -10,4 +10,5 @@
     <string name="current_target">Current Target</string>
     <string name="app_list">App List</string>
     <string name="notice">Turn on BixbyRemap in Settings->Accessibility->Services \n(Click to open Accessibility Settings)</string>
+    <string name="accessibility_describe">BixbyRemap lets you to remap Bixby button on Samsung Galaxy S8/S8+ to any other applications.</string>
 </resources>

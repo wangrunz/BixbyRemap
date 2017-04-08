@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     private Button button;
     private TextView textView;
     private TextView textViewNotice;
-    private EditText editText;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -46,20 +45,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         button = (Button)findViewById(R.id.button);
-        editText = (EditText)findViewById(R.id.editText);
-        editText.setText(String.valueOf(sharedPreferences.getInt(getString(R.string.source_button_id),Integer.valueOf(getString(R.string.bixby_button_code)))));
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE){
-                    SharedPreferences.Editor edit = sharedPreferences.edit();
-                    edit.putInt(getString(R.string.source_button_id),Integer.valueOf(v.getText().toString()));
-                    edit.apply();
-                    return true;
-                }
-                return false;
-            }
-        });
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
