@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">BixbyRemap</string>
+    <string name="preference_file_key">target_app_info</string>
+    <string name="source_button_id">source_button_id</string>
+    <string name="none">None</string>
+    <string name="target_package_name">target_package_name</string>
+    <string name="target_activity_name">target_activity_name</string>
+    <string name="bixby_button_code">24</string>
+    <string name="botton_code">Button Code</string>
+    <string name="current_target">Current Target</string>
+    <string name="app_list">App List</string>
+    <string name="notice">Turn on BixbyRemap in Settings->Accessibility->Services \n(Click to open Accessibility Settings)</string>
+</resources>
