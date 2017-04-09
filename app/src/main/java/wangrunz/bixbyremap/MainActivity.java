@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key),MODE_PRIVATE);
         textView = (TextView)findViewById(R.id.textView);
-        textView.setText(sharedPreferences.getString(getString(R.string.target_package_name),"N/A"));
+        textView.setText(sharedPreferences.getString(getString(R.string.target_name),"N/A"));
         textViewNotice = (TextView)findViewById(R.id.textView_notice);
         textViewNotice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,27 +70,50 @@ public class MainActivity extends AppCompatActivity {
                 PopupMenu popupMenu = new PopupMenu(MainActivity.this,button);
                 popupMenu.getMenuInflater().inflate(R.menu.app_menu,popupMenu.getMenu());
                 Menu menu = popupMenu.getMenu();
-                menu.add(0,0,Menu.NONE,R.string.none);
-                int count =1;
+                menu.add(0,100,Menu.NONE,"None");
+                SubMenu device_menu = menu.getItem(0).getSubMenu();
+
+                device_menu.add(R.id.menu_device_action,101,Menu.NONE,"Recent Apps");
+                device_menu.add(R.id.menu_device_action,102,Menu.NONE,"Home");
+                device_menu.add(R.id.menu_device_action,103,Menu.NONE,"Back");
+                device_menu.add(R.id.menu_device_action,104,Menu.NONE,"Notifications");
+                device_menu.add(R.id.menu_device_action,105,Menu.NONE,"Quick Settings");
+                device_menu.add(R.id.menu_device_action,106,Menu.NONE,"Split Screen");
+                device_menu.add(R.id.menu_device_action,107,Menu.NONE,"Flash");
+                device_menu.add(R.id.menu_device_action,108,Menu.NONE,"Ringer Mode");
+
+                SubMenu app_menu = menu.getItem(1).getSubMenu();
+
+
+                final int offset =device_menu.size()+1;
+                int id = offset+100;
                 for (ResolveInfo info: appList){
-                    menu.add(0,count,Menu.NONE,info.loadLabel(getPackageManager())).setIcon(info.loadIcon(getPackageManager()));
-                    count++;
+                    app_menu.add(R.id.menu_app_list,id,Menu.NONE,info.loadLabel(getPackageManager()));
+                    id++;
                 }
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         SharedPreferences.Editor edit = sharedPreferences.edit();
-                        if (item.getItemId()==0){
+                        if (item.getItemId()<100){
+                            return false;
+                        }
+                        if (item.getItemId()<offset+100 && item.getItemId()>=100){
+                            edit.putString(getString(R.string.target_name),item.getTitle().toString());
+                            edit.putString(getString(R.string.target_action),item.getTitle().toString());
                             edit.putString(getString(R.string.target_activity_name),null);
                             edit.putString(getString(R.string.target_package_name),null);
                             edit.apply();
-                            textView.setText("N/A");
+                            textView.setText(item.getTitle().toString());
                             return false;
                         }
-                        ActivityInfo activityInfo = appList.get(item.getItemId()-1).activityInfo;
+                        ActivityInfo activityInfo = appList.get(item.getItemId()-offset-100).activityInfo;
                         String packageName = activityInfo.applicationInfo.packageName;
                         String name = activityInfo.name;
-                        textView.setText(activityInfo.packageName);
+                        String label = activityInfo.loadLabel(getPackageManager()).toString();
+                        textView.setText(label);
+                        edit.putString(getString(R.string.target_name),label);
+                        edit.putString(getString(R.string.target_action),null);
                         edit.putString(getString(R.string.target_activity_name),name);
                         edit.putString(getString(R.string.target_package_name),packageName);
                         edit.apply();

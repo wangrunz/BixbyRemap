@@ -5,9 +5,12 @@
     <string name="none">None</string>
     <string name="target_package_name">target_package_name</string>
     <string name="target_activity_name">target_activity_name</string>
-    <string name="bixby_button_code">24</string>
+    <string name="target_action">target_action</string>
+    <string name="target_name">target_name</string>
+    <string name="bixby_button_code">1082</string>
     <string name="botton_code">Button Code</string>
     <string name="current_target">Current Target</string>
     <string name="app_list">App List</string>
     <string name="notice">Turn on BixbyRemap in Settings->Accessibility->Services \n(Click to open Accessibility Settings)</string>
+    <string name="accessibility_describe">BixbyRemap lets you to remap Bixby button on Samsung Galaxy S8/S8+ to any other applications.</string>
 </resources>

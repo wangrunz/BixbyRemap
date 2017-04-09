@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:title="Device Action"
+        app:showAsAction="ifRoom">
+        <menu>
+            <group android:id="@+id/menu_device_action">
 
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="App Lists"
+        app:showAsAction="ifRoom">
+        <menu>
+            <group android:id="@+id/menu_app_list">
+
+            </group>
+        </menu>
+    </item>
 </menu>
