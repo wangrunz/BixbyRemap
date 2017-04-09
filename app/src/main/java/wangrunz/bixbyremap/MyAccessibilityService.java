@@ -63,9 +63,6 @@ public class MyAccessibilityService extends AccessibilityService {
             int sourceKeyCode = sharedPreferences.getInt(
                     getString(R.string.source_button_id),
                     Integer.valueOf(getString(R.string.bixby_button_code)));
-            if (!keyCodeList.contains(sourceKeyCode)){
-                sourceKeyCode=Integer.valueOf(getString(R.string.bixby_button_code));
-            }
             if (keyCode == sourceKeyCode){
 
                 String activityName = sharedPreferences.getString(getString(R.string.target_activity_name), null);
@@ -113,6 +110,7 @@ public class MyAccessibilityService extends AccessibilityService {
     private void changeRingerMode() {
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         if (!notificationManager.isNotificationPolicyAccessGranted()){
+            Toast.makeText(this,getString(R.string.notification_permission_notice),Toast.LENGTH_LONG).show();
             Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
             startActivity(intent);
         }

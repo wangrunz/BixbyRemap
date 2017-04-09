@@ -1,33 +1,31 @@
 package wangrunz.bixbyremap;
 
-import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
 import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private Button button;
+    private Button customButton;
     private TextView textView;
     private TextView textViewNotice;
-    private EditText editText;
+    private TextView textViewKeyCode;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -35,8 +33,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key),MODE_PRIVATE);
+        textViewKeyCode = (TextView)findViewById(R.id.textViewKeyCode);
+        textViewKeyCode.setText(String.valueOf(sharedPreferences.getInt(
+                getString(R.string.source_button_id),
+                Integer.valueOf(getString(R.string.bixby_button_code)))));
         textView = (TextView)findViewById(R.id.textView);
-        textView.setText(sharedPreferences.getString(getString(R.string.target_name),"N/A"));
+        textView.setText(sharedPreferences.getString(getString(R.string.target_name),"None"));
         textViewNotice = (TextView)findViewById(R.id.textView_notice);
         textViewNotice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,20 +49,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         button = (Button)findViewById(R.id.button);
-        editText = (EditText)findViewById(R.id.editText);
-        editText.setText(String.valueOf(sharedPreferences.getInt(getString(R.string.source_button_id),Integer.valueOf(getString(R.string.bixby_button_code)))));
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        customButton = (Button)findViewById(R.id.button2);
+        customButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE){
-                    SharedPreferences.Editor edit = sharedPreferences.edit();
-                    edit.putInt(getString(R.string.source_button_id),Integer.valueOf(v.getText().toString()));
-                    edit.apply();
-                    return true;
-                }
-                return false;
+            public void onClick(View v) {
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setMessage("Press Custom Key")
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //
+                            }
+                        }).create();
+                dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                    @Override
+                    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                        textViewKeyCode.setText(String.valueOf(keyCode));
+                        SharedPreferences.Editor edit = sharedPreferences.edit();
+                        edit.putInt(getString(R.string.source_button_id),keyCode);
+                        edit.apply();
+                        dialog.dismiss();
+                        return true;
+                    }
+                });
+                dialog.show();
             }
         });
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
