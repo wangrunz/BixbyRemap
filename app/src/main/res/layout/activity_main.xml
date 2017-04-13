@@ -7,32 +7,36 @@
     tools:context="wangrunz.bixbyremap.MainActivity">
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="150dp"
+        android:id="@+id/KeyCodeText"
+        android:layout_width="120dp"
         android:layout_height="50dp"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:gravity="left|center_vertical"
-        android:lines="1"
-        android:text="Hello World!"
+        android:text="@string/key_code"
         android:textSize="18sp"
-        app:layout_constraintLeft_toRightOf="@+id/textView5"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/KeyCode"
+        android:layout_width="150dp"
         android:layout_height="50dp"
+        android:layout_marginBottom="189dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/target_list"
-        android:layout_marginStart="11dp"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+        android:ems="10"
+        android:gravity="left|center_vertical"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/SingleClickAction"
+        app:layout_constraintLeft_toRightOf="@+id/KeyCodeText"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/KeyCodeCustom"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_marginRight="9dp"
@@ -43,46 +47,118 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textViewKeyCode"
+        android:id="@+id/SingleClickAction"
         android:layout_width="150dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="189dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="left|center_vertical"
+        android:lines="1"
+        android:text="Hello World!"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toRightOf="@+id/SingleClick"
+        app:layout_constraintTop_toBottomOf="@+id/KeyCodeText" />
+
+    <Button
+        android:id="@+id/SingleClickMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/target_list"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KeyCodeCustom" />
+
+    <TextView
+        android:id="@+id/SingleClick"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="left|center_vertical"
+        android:text="@string/single_click"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KeyCodeText" />
+
+    <TextView
+        android:id="@+id/DoubleClickAction"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:ems="10"
         android:gravity="left|center_vertical"
+        android:lines="1"
+        android:text="Hello World!"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintLeft_toRightOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintLeft_toRightOf="@+id/DoubleClick"
+        app:layout_constraintTop_toBottomOf="@+id/SingleClickAction" />
+
+    <Button
+        android:id="@+id/DoubleClickMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/target_list"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SingleClickMenu" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/DoubleClick"
         android:layout_width="120dp"
         android:layout_height="50dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:gravity="left|center_vertical"
-        android:text="@string/botton_code"
+        android:text="@string/double_click"
         android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/SingleClick" />
 
     <TextView
-        android:id="@+id/textView5"
-        android:layout_width="120dp"
+        android:id="@+id/LongPressAction"
+        android:layout_width="150dp"
         android:layout_height="50dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:gravity="left|center_vertical"
-        android:text="@string/current_target"
+        android:lines="1"
+        android:text="Hello World!"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toRightOf="@+id/LongPress"
+        app:layout_constraintTop_toBottomOf="@+id/DoubleClickAction" />
+
+    <TextView
+        android:id="@+id/LongPress"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="left|center_vertical"
+        android:text="@string/long_press"
         android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toBottomOf="@+id/DoubleClick" />
+
+    <Button
+        android:id="@+id/LongPressMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/target_list"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/DoubleClickMenu" />
 
     <TextView
         android:id="@+id/textView_notice"
@@ -98,5 +174,71 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
+    <SeekBar
+        android:id="@+id/LongPressSeekBar"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:max="1000"
+        app:layout_constraintLeft_toRightOf="@+id/LongPressInterval"
+        app:layout_constraintTop_toBottomOf="@+id/LongPressAction" />
+
+    <TextView
+        android:id="@+id/LongPressInterval"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="left|center_vertical"
+        android:text="@string/long_press_interval"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/LongPress" />
+
+    <SeekBar
+        android:id="@+id/DoubleClickSeekBar"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:max="1000"
+        app:layout_constraintLeft_toRightOf="@+id/DoubleClickInterval"
+        app:layout_constraintTop_toBottomOf="@+id/LongPressSeekBar" />
+
+    <TextView
+        android:id="@+id/DoubleClickInterval"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="left|center_vertical"
+        android:text="@string/double_click_interval"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/LongPressInterval" />
+
+        <TextView
+        android:id="@+id/LongPressInt"
+        android:layout_width="80dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="TextView"
+        app:layout_constraintLeft_toRightOf="@+id/LongPressSeekBar"
+        app:layout_constraintTop_toBottomOf="@+id/LongPressMenu" />
+
+        <TextView
+        android:id="@+id/DoubleClickInt"
+        android:layout_width="80dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="TextView"
+        app:layout_constraintLeft_toRightOf="@+id/DoubleClickSeekBar"
+        app:layout_constraintTop_toBottomOf="@+id/LongPressInt" />
 
 </android.support.constraint.ConstraintLayout>

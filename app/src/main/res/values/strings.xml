@@ -8,13 +8,19 @@
     <string name="target_action">target_action</string>
     <string name="target_name">target_name</string>
     <string name="bixby_button_code">1082</string>
-    <string name="botton_code">Button Code</string>
-    <string name="current_target">Current Action</string>
+    <string name="key_code">Key Code</string>
+    <string name="single_click">Single Click</string>
+    <string name="double_click">Double Click</string>
+    <string name="long_press">Long Press</string>
     <string name="target_list">List</string>
     <string name="button_code_custom">Custom</string>
     <string name="cancel">Cancel</string>
     <string name="set">Set</string>
+    <string name="long_press_interval">Long Press Interval (ms)</string>
+    <string name="double_click_interval">Double Click Interval (ms)</string>
     <string name="notice">Turn on BixbyRemap in Settings->Accessibility->Services->BixbyRemap \n(Click here to open Accessibility Settings)</string>
     <string name="notification_permission_notice">Grant Do Not Disturb Access to change Ringer Mode</string>
     <string name="accessibility_describe">BixbyRemap lets you to remap Bixby button on Samsung Galaxy S8/S8+ to any other applications.</string>
+
+
 </resources>

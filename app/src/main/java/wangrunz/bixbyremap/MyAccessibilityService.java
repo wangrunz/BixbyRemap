@@ -2,7 +2,6 @@ package wangrunz.bixbyremap;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.app.Instrumentation;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -11,15 +10,13 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.inputmethod.BaseInputConnection;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,7 +31,14 @@ public class MyAccessibilityService extends AccessibilityService {
     private CameraManager cameraManager;
     private AudioManager audioManager;
     private NotificationManager notificationManager;
+    private SharedPreferences sharedPreferences;
     private int ringer_mode;
+    private long buttonEventTime;
+    private boolean doubleClickTrigger = false;
+    private boolean longPressTrigger = false;
+    private boolean clickHandler = false;
+    private long LONG_PRESS_INTERVAL = 1000;
+    private long DOUBLE_CLICK_INTERVAL = 200;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -51,60 +55,108 @@ public class MyAccessibilityService extends AccessibilityService {
         AccessibilityServiceInfo info = getServiceInfo();
         info.flags = AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
         setServiceInfo(info);
+        sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key),MODE_PRIVATE);
     }
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
-        int action = event.getAction();
-        int keyCode = event.getKeyCode();
+        final int action = event.getAction();
+        final int keyCode = event.getKeyCode();
+        int sourceKeyCode = sharedPreferences.getInt(
+                getString(R.string.source_button_id),
+                Integer.valueOf(getString(R.string.bixby_button_code)));
+        LONG_PRESS_INTERVAL = sharedPreferences.getInt("longpressinterval",1000);
+        DOUBLE_CLICK_INTERVAL = sharedPreferences.getInt("doubleclickinterval",200);
         Log.d("KeyCode",String.valueOf(keyCode)+" "+String.valueOf(action));
-        if (action == KeyEvent.ACTION_DOWN){
-            SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key),MODE_PRIVATE);
-            int sourceKeyCode = sharedPreferences.getInt(
-                    getString(R.string.source_button_id),
-                    Integer.valueOf(getString(R.string.bixby_button_code)));
-            if (keyCode == sourceKeyCode){
-
-                String activityName = sharedPreferences.getString(getString(R.string.target_activity_name), null);
-                String packageName = sharedPreferences.getString(getString(R.string.target_package_name), null);
-                String actionName = sharedPreferences.getString(getString(R.string.target_action),null);
-                if (actionName!=null){
-                    switch (actionName){
-                        case "None":
-                            return false;
-                        case "Recent Apps":
-                            performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
-                            break;
-                        case "Home":
-                            performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
-                            break;
-                        case "Back":
-                            performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
-                            break;
-                        case "Notifications":
-                            performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS);
-                            break;
-                        case "Quick Settings":
-                            performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS);
-                            break;
-                        case "Split Screen":
-                            performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN);
-                            break;
-                        case "Flash":
-                            return toggleFlash();
-                        case "Ringer Mode":
-                            changeRingerMode();
-                            break;
+        if (keyCode == sourceKeyCode){
+            if (action == KeyEvent.ACTION_DOWN){
+                longPressTrigger=true;
+                Handler handler = new Handler();
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (longPressTrigger){
+                            //Toast.makeText(MyAccessibilityService.this,"Long Press",Toast.LENGTH_SHORT).show();
+                            longPressTrigger=false;
+                            action("long");
+                        }
                     }
-                    return true;
+                };
+                handler.postDelayed(r, LONG_PRESS_INTERVAL);
+            }
+            else if (action == KeyEvent.ACTION_UP){
+                long time = event.getEventTime();
+                if (longPressTrigger){
+                    Handler handler = new Handler();
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (doubleClickTrigger){
+                                //Toast.makeText(MyAccessibilityService.this,"Single Click",Toast.LENGTH_SHORT).show();
+                                doubleClickTrigger=false;
+                                action("single");
+                            }
+                        }
+                    };
+                    if (doubleClickTrigger && (time-buttonEventTime)< DOUBLE_CLICK_INTERVAL){
+                        //Toast.makeText(this,"Double Click",Toast.LENGTH_SHORT).show();
+                        doubleClickTrigger=false;
+                        action("double");
+                    }
+                    else {
+                        doubleClickTrigger=true;
+                        handler.postDelayed(r, DOUBLE_CLICK_INTERVAL);
+                    }
                 }
-                if (activityName==null || packageName==null){
-                    return false;
-                }
-                return startActivity(packageName,activityName);
+                buttonEventTime=time;
+                longPressTrigger=false;
             }
         }
-        return false;
+        return true;
+    }
+
+    private boolean action(String button){
+
+        String activityName = sharedPreferences.getString(getString(R.string.target_activity_name)+button, null);
+        String packageName = sharedPreferences.getString(getString(R.string.target_package_name)+button, null);
+        String actionName = sharedPreferences.getString(getString(R.string.target_action)+button,null);
+        if (actionName!=null){
+            switch (actionName){
+                case "None":
+                    return false;
+                case "Recent Apps":
+                    performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
+                    break;
+                case "Home":
+                    performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
+                    break;
+                case "Back":
+                    performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+                    break;
+                case "Notifications":
+                    performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS);
+                    break;
+                case "Quick Settings":
+                    performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS);
+                    break;
+                case "Split Screen":
+                    performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN);
+                    break;
+                case "Power Dialog":
+                    performGlobalAction(GLOBAL_ACTION_POWER_DIALOG);
+                    break;
+                case "Flash":
+                    return toggleFlash();
+                case "Ringer Mode":
+                    changeRingerMode();
+                    break;
+            }
+            return true;
+        }
+        if (activityName==null || packageName==null){
+            return false;
+        }
+        return startActivity(packageName,activityName);
     }
 
     private void changeRingerMode() {
