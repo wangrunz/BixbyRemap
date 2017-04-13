@@ -111,8 +111,11 @@ public class MyAccessibilityService extends AccessibilityService {
                 buttonEventTime=time;
                 longPressTrigger=false;
             }
+            return true;
         }
-        return true;
+        else {
+            return false;
+        }
     }
 
     private boolean action(String button){
