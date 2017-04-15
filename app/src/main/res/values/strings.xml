@@ -21,6 +21,7 @@
     <string name="notice">Turn on BixbyRemap in Settings->Accessibility->Services->BixbyRemap \n(Click here to open Accessibility Settings)</string>
     <string name="notification_permission_notice">Grant Do Not Disturb Access to change Ringer Mode</string>
     <string name="accessibility_describe">BixbyRemap lets you to remap Bixby button on Samsung Galaxy S8/S8+ to any other applications.\n\nPermissions:\n- Bind to an accessibility service (Required): This permission is required to enable a accessibility service. BixbyRemap use accessibility service to listen for button press and remap it to the action you want. You will see an alert about "Observe your actions" and "Observe text you type" when you enable this accessibility service, but this app will only observe the press action of Bixby Button (KeyCode 1082).\n- Do not disturb (Optional): This permission is required to silence your phone when you use Ringer Mode as action. This permission will be asked at the first time you use Ringer Mode.\n\nFor more concerns about privacy, feel free to view the source code.\nGithub: https://github.com/wangrunz/BixbyRemap</string>
-
-
+    <string name="device_action">Device Action</string>
+    <string name="media_control">Media Control</string>
+    <string name="app_list">App List</string>
 </resources>

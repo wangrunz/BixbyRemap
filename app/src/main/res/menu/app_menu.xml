@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:title="Device Action"
+    <item android:title="@string/device_action"
         app:showAsAction="ifRoom">
         <menu>
             <group android:id="@+id/menu_device_action">
@@ -10,7 +10,16 @@
         </menu>
     </item>
 
-    <item android:title="App Lists"
+    <item android:title="@string/media_control"
+        app:showAsAction="ifRoom">
+        <menu>
+            <group android:id="@+id/menu_media_controller">
+
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="@string/app_list"
         app:showAsAction="ifRoom">
         <menu>
             <group android:id="@+id/menu_app_list">

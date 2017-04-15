@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
@@ -17,8 +18,10 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key),MODE_PRIVATE);
+        runUpdatesIfNecessary();
         textViewKeyCode = (TextView)findViewById(R.id.KeyCode);
         textViewKeyCode.setText(String.valueOf(sharedPreferences.getInt(
                 getString(R.string.source_button_id),
@@ -97,130 +101,14 @@ public class MainActivity extends AppCompatActivity {
         SingleClickMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent intent = new Intent(Intent.ACTION_MAIN,null);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                final List<ResolveInfo> appList = getPackageManager().queryIntentActivities(intent,0);
-                PopupMenu popupMenu = new PopupMenu(MainActivity.this, SingleClickMenuButton);
-                popupMenu.getMenuInflater().inflate(R.menu.app_menu,popupMenu.getMenu());
-                Menu menu = popupMenu.getMenu();
-                menu.add(0,100,Menu.NONE,"None");
-                SubMenu device_menu = menu.getItem(0).getSubMenu();
-
-                device_menu.add(R.id.menu_device_action,101,Menu.NONE,"Recent Apps");
-                device_menu.add(R.id.menu_device_action,102,Menu.NONE,"Home");
-                device_menu.add(R.id.menu_device_action,103,Menu.NONE,"Back");
-                device_menu.add(R.id.menu_device_action,104,Menu.NONE,"Notifications");
-                device_menu.add(R.id.menu_device_action,105,Menu.NONE,"Quick Settings");
-                device_menu.add(R.id.menu_device_action,106,Menu.NONE,"Split Screen");
-                device_menu.add(R.id.menu_device_action,107,Menu.NONE,"Power Dialog");
-                device_menu.add(R.id.menu_device_action,108,Menu.NONE,"Flash");
-                device_menu.add(R.id.menu_device_action,109,Menu.NONE,"Ringer Mode");
-
-                SubMenu app_menu = menu.getItem(1).getSubMenu();
-
-
-                final int offset =device_menu.size()+1;
-                int id = offset+100;
-                for (ResolveInfo info: appList){
-                    app_menu.add(R.id.menu_app_list,id,Menu.NONE,info.loadLabel(getPackageManager()));
-                    id++;
-                }
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        SharedPreferences.Editor edit = sharedPreferences.edit();
-                        if (item.getItemId()<100){
-                            return false;
-                        }
-                        if (item.getItemId()<offset+100 && item.getItemId()>=100){
-                            edit.putString(getString(R.string.target_name)+"single",item.getTitle().toString());
-                            edit.putString(getString(R.string.target_action)+"single",item.getTitle().toString());
-                            edit.putString(getString(R.string.target_activity_name)+"single",null);
-                            edit.putString(getString(R.string.target_package_name)+"single",null);
-                            edit.apply();
-                            SingleClickAction.setText(item.getTitle().toString());
-                            return false;
-                        }
-                        ActivityInfo activityInfo = appList.get(item.getItemId()-offset-100).activityInfo;
-                        String packageName = activityInfo.applicationInfo.packageName;
-                        String name = activityInfo.name;
-                        String label = activityInfo.loadLabel(getPackageManager()).toString();
-                        SingleClickAction.setText(label);
-                        edit.putString(getString(R.string.target_name)+"single",label);
-                        edit.putString(getString(R.string.target_action)+"single",null);
-                        edit.putString(getString(R.string.target_activity_name)+"single",name);
-                        edit.putString(getString(R.string.target_package_name)+"single",packageName);
-                        edit.apply();
-                        return false;
-                    }
-                });
-
-                popupMenu.show();
+                showPopupMenu(SingleClickMenuButton);
             }
         });
 
         DoubleClickMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent intent = new Intent(Intent.ACTION_MAIN,null);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                final List<ResolveInfo> appList = getPackageManager().queryIntentActivities(intent,0);
-                PopupMenu popupMenu = new PopupMenu(MainActivity.this, DoubleClickMenuButton);
-                popupMenu.getMenuInflater().inflate(R.menu.app_menu,popupMenu.getMenu());
-                Menu menu = popupMenu.getMenu();
-                menu.add(0,100,Menu.NONE,"None");
-                SubMenu device_menu = menu.getItem(0).getSubMenu();
-
-                device_menu.add(R.id.menu_device_action,101,Menu.NONE,"Recent Apps");
-                device_menu.add(R.id.menu_device_action,102,Menu.NONE,"Home");
-                device_menu.add(R.id.menu_device_action,103,Menu.NONE,"Back");
-                device_menu.add(R.id.menu_device_action,104,Menu.NONE,"Notifications");
-                device_menu.add(R.id.menu_device_action,105,Menu.NONE,"Quick Settings");
-                device_menu.add(R.id.menu_device_action,106,Menu.NONE,"Split Screen");
-                device_menu.add(R.id.menu_device_action,107,Menu.NONE,"Power Dialog");
-                device_menu.add(R.id.menu_device_action,108,Menu.NONE,"Flash");
-                device_menu.add(R.id.menu_device_action,109,Menu.NONE,"Ringer Mode");
-
-                SubMenu app_menu = menu.getItem(1).getSubMenu();
-
-
-                final int offset =device_menu.size()+1;
-                int id = offset+100;
-                for (ResolveInfo info: appList){
-                    app_menu.add(R.id.menu_app_list,id,Menu.NONE,info.loadLabel(getPackageManager()));
-                    id++;
-                }
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        SharedPreferences.Editor edit = sharedPreferences.edit();
-                        if (item.getItemId()<100){
-                            return false;
-                        }
-                        if (item.getItemId()<offset+100 && item.getItemId()>=100){
-                            edit.putString(getString(R.string.target_name)+"double",item.getTitle().toString());
-                            edit.putString(getString(R.string.target_action)+"double",item.getTitle().toString());
-                            edit.putString(getString(R.string.target_activity_name)+"double",null);
-                            edit.putString(getString(R.string.target_package_name)+"double",null);
-                            edit.apply();
-                            DoubleClickAction.setText(item.getTitle().toString());
-                            return false;
-                        }
-                        ActivityInfo activityInfo = appList.get(item.getItemId()-offset-100).activityInfo;
-                        String packageName = activityInfo.applicationInfo.packageName;
-                        String name = activityInfo.name;
-                        String label = activityInfo.loadLabel(getPackageManager()).toString();
-                        DoubleClickAction.setText(label);
-                        edit.putString(getString(R.string.target_name)+"double",label);
-                        edit.putString(getString(R.string.target_action)+"double",null);
-                        edit.putString(getString(R.string.target_activity_name)+"double",name);
-                        edit.putString(getString(R.string.target_package_name)+"double",packageName);
-                        edit.apply();
-                        return false;
-                    }
-                });
-
-                popupMenu.show();
+                showPopupMenu(DoubleClickMenuButton);
             }
         });
 
@@ -228,65 +116,7 @@ public class MainActivity extends AppCompatActivity {
         LongPressMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent intent = new Intent(Intent.ACTION_MAIN,null);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                final List<ResolveInfo> appList = getPackageManager().queryIntentActivities(intent,0);
-                PopupMenu popupMenu = new PopupMenu(MainActivity.this, LongPressAction);
-                popupMenu.getMenuInflater().inflate(R.menu.app_menu,popupMenu.getMenu());
-                Menu menu = popupMenu.getMenu();
-                menu.add(0,100,Menu.NONE,"None");
-                SubMenu device_menu = menu.getItem(0).getSubMenu();
-
-                device_menu.add(R.id.menu_device_action,101,Menu.NONE,"Recent Apps");
-                device_menu.add(R.id.menu_device_action,102,Menu.NONE,"Home");
-                device_menu.add(R.id.menu_device_action,103,Menu.NONE,"Back");
-                device_menu.add(R.id.menu_device_action,104,Menu.NONE,"Notifications");
-                device_menu.add(R.id.menu_device_action,105,Menu.NONE,"Quick Settings");
-                device_menu.add(R.id.menu_device_action,106,Menu.NONE,"Split Screen");
-                device_menu.add(R.id.menu_device_action,107,Menu.NONE,"Power Dialog");
-                device_menu.add(R.id.menu_device_action,108,Menu.NONE,"Flash");
-                device_menu.add(R.id.menu_device_action,109,Menu.NONE,"Ringer Mode");
-
-                SubMenu app_menu = menu.getItem(1).getSubMenu();
-
-
-                final int offset =device_menu.size()+1;
-                int id = offset+100;
-                for (ResolveInfo info: appList){
-                    app_menu.add(R.id.menu_app_list,id,Menu.NONE,info.loadLabel(getPackageManager()));
-                    id++;
-                }
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        SharedPreferences.Editor edit = sharedPreferences.edit();
-                        if (item.getItemId()<100){
-                            return false;
-                        }
-                        if (item.getItemId()<offset+100 && item.getItemId()>=100){
-                            edit.putString(getString(R.string.target_name)+"long",item.getTitle().toString());
-                            edit.putString(getString(R.string.target_action)+"long",item.getTitle().toString());
-                            edit.putString(getString(R.string.target_activity_name)+"long",null);
-                            edit.putString(getString(R.string.target_package_name)+"long",null);
-                            edit.apply();
-                            LongPressAction.setText(item.getTitle().toString());
-                            return false;
-                        }
-                        ActivityInfo activityInfo = appList.get(item.getItemId()-offset-100).activityInfo;
-                        String packageName = activityInfo.applicationInfo.packageName;
-                        String name = activityInfo.name;
-                        String label = activityInfo.loadLabel(getPackageManager()).toString();
-                        LongPressAction.setText(label);
-                        edit.putString(getString(R.string.target_name)+"long",label);
-                        edit.putString(getString(R.string.target_action)+"long",null);
-                        edit.putString(getString(R.string.target_activity_name)+"long",name);
-                        edit.putString(getString(R.string.target_package_name)+"long",packageName);
-                        edit.apply();
-                        return false;
-                    }
-                });
-
-                popupMenu.show();
+                showPopupMenu(LongPressMenuButton);
             }
         });
 
@@ -341,4 +171,139 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void showPopupMenu(Button button){
+
+        final String key;
+        final TextView textView;
+        switch(button.getId()){
+            case R.id.SingleClickMenu:
+                key = "single";
+                textView = SingleClickAction;
+                break;
+            case R.id.DoubleClickMenu:
+                key = "double";
+                textView = DoubleClickAction;
+                break;
+            case R.id.LongPressMenu:
+                key = "long";
+                textView = LongPressAction;
+                break;
+            default:
+                key = "single";
+                textView = SingleClickAction;
+                break;
+        }
+
+
+        PopupMenu popupMenu = new PopupMenu(MainActivity.this, button);
+        popupMenu.getMenuInflater().inflate(R.menu.app_menu,popupMenu.getMenu());
+        Menu menu = popupMenu.getMenu();
+        menu.add(0,100,Menu.NONE,"None");
+
+        SubMenu device_menu = menu.getItem(0).getSubMenu();
+
+        device_menu.add(R.id.menu_device_action,100,Menu.NONE,"Recent Apps");
+        device_menu.add(R.id.menu_device_action,101,Menu.NONE,"Home");
+        device_menu.add(R.id.menu_device_action,102,Menu.NONE,"Back");
+        device_menu.add(R.id.menu_device_action,103,Menu.NONE,"Notifications");
+        device_menu.add(R.id.menu_device_action,104,Menu.NONE,"Quick Settings");
+        device_menu.add(R.id.menu_device_action,105,Menu.NONE,"Split Screen");
+        device_menu.add(R.id.menu_device_action,106,Menu.NONE,"Power Dialog");
+        device_menu.add(R.id.menu_device_action,107,Menu.NONE,"Flash");
+        device_menu.add(R.id.menu_device_action,108,Menu.NONE,"Ringer Mode");
+        device_menu.add(R.id.menu_device_action,109,Menu.NONE,"Voice Assistance");
+
+
+        SubMenu media_menu = menu.getItem(1).getSubMenu();
+
+        media_menu.add(R.id.menu_media_controller,200,Menu.NONE,"Toggle Pause");
+        media_menu.add(R.id.menu_media_controller,201,Menu.NONE,"Play");
+        media_menu.add(R.id.menu_media_controller,202,Menu.NONE,"Pause");
+        media_menu.add(R.id.menu_media_controller,203,Menu.NONE,"Stop");
+        media_menu.add(R.id.menu_media_controller,204,Menu.NONE,"Previous");
+        media_menu.add(R.id.menu_media_controller,205,Menu.NONE,"Next");
+
+        SubMenu app_menu = menu.getItem(2).getSubMenu();
+
+        final Intent intent = new Intent(Intent.ACTION_MAIN,null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        final List<ResolveInfo> appList = getPackageManager().queryIntentActivities(intent,0);
+        Collections.sort(appList, new ResolveInfo.DisplayNameComparator(getPackageManager()));
+
+        int id = 900;
+        for (ResolveInfo info: appList){
+            app_menu.add(R.id.menu_app_list,id,Menu.NONE,info.loadLabel(getPackageManager()));
+            id++;
+        }
+
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                SharedPreferences.Editor edit = sharedPreferences.edit();
+                if (item.getItemId()<100){
+                    return false;
+                }
+
+                else if (item.getItemId()<200){
+                    edit.putString(getString(R.string.target_name)+key,item.getTitle().toString());
+                    edit.putString(getString(R.string.target_action)+key,"device");
+                    edit.putString(getString(R.string.target_activity_name)+key,null);
+                    edit.putString(getString(R.string.target_package_name)+key,null);
+                    edit.apply();
+                    textView.setText(item.getTitle().toString());
+                    return false;
+                }
+                else if (item.getItemId()<300){
+                    edit.putString(getString(R.string.target_name)+key,item.getTitle().toString());
+                    edit.putString(getString(R.string.target_action)+key,"media");
+                    edit.putString(getString(R.string.target_activity_name)+key,null);
+                    edit.putString(getString(R.string.target_package_name)+key,null);
+                    edit.apply();
+                    textView.setText(item.getTitle().toString());
+                    return false;
+                }
+                else if (item.getItemId()>=900){
+                    ActivityInfo activityInfo = appList.get(item.getItemId()-900).activityInfo;
+                    String packageName = activityInfo.applicationInfo.packageName;
+                    String name = activityInfo.name;
+                    String label = activityInfo.loadLabel(getPackageManager()).toString();
+                    textView.setText(label);
+                    edit.putString(getString(R.string.target_name)+key,label);
+                    edit.putString(getString(R.string.target_action)+key,"app");
+                    edit.putString(getString(R.string.target_activity_name)+key,name);
+                    edit.putString(getString(R.string.target_package_name)+key,packageName);
+                    edit.apply();
+                    return false;
+                }
+                return false;
+            }
+        });
+
+        popupMenu.show();
+    }
+
+    void runUpdatesIfNecessary() {
+        try {
+            int versionCode = getPackageManager().getPackageInfo(getPackageName(),0).versionCode;
+            if (sharedPreferences.getInt("lastUpdate", 0) != versionCode) {
+                try {
+                    runUpdates();
+                    // Commiting in the preferences, that the update was successful.
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt("lastUpdate", versionCode);
+                    editor.apply();
+                } catch(Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+        }catch (PackageManager.NameNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void runUpdates() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+    }
 }

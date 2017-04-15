@@ -17,28 +17,44 @@ import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 
-/**
- * Created by wrz19 on 4/8/2017.
- */
 
 public class MyAccessibilityService extends AccessibilityService {
 
-    private static final List<Integer> keyCodeList = Arrays.asList(24,25);
     private boolean torch_status=false;
     private CameraManager cameraManager;
     private AudioManager audioManager;
+    private AudioManager mAudioManager;
     private NotificationManager notificationManager;
     private SharedPreferences sharedPreferences;
     private int ringer_mode;
     private long buttonEventTime;
     private boolean doubleClickTrigger = false;
     private boolean longPressTrigger = false;
-    private boolean clickHandler = false;
     private long LONG_PRESS_INTERVAL = 1000;
     private long DOUBLE_CLICK_INTERVAL = 200;
+    private Handler handler = new Handler();
+    private Runnable longPressRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (longPressTrigger){
+                //Toast.makeText(MyAccessibilityService.this,"Long Press",Toast.LENGTH_SHORT).show();
+                longPressTrigger=false;
+                action("long");
+            }
+        }
+    };
+    private Runnable doubleClickRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (doubleClickTrigger){
+                //Toast.makeText(MyAccessibilityService.this,"Single Click",Toast.LENGTH_SHORT).show();
+                doubleClickTrigger=false;
+                action("single");
+            }
+        }
+    };
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -55,6 +71,7 @@ public class MyAccessibilityService extends AccessibilityService {
         AccessibilityServiceInfo info = getServiceInfo();
         info.flags = AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
         setServiceInfo(info);
+        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key),MODE_PRIVATE);
     }
 
@@ -69,43 +86,24 @@ public class MyAccessibilityService extends AccessibilityService {
         DOUBLE_CLICK_INTERVAL = sharedPreferences.getInt("doubleclickinterval",200);
         Log.d("KeyCode",String.valueOf(keyCode)+" "+String.valueOf(action));
         if (keyCode == sourceKeyCode){
+
             if (action == KeyEvent.ACTION_DOWN){
                 longPressTrigger=true;
-                Handler handler = new Handler();
-                Runnable r = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (longPressTrigger){
-                            //Toast.makeText(MyAccessibilityService.this,"Long Press",Toast.LENGTH_SHORT).show();
-                            longPressTrigger=false;
-                            action("long");
-                        }
-                    }
-                };
-                handler.postDelayed(r, LONG_PRESS_INTERVAL);
+                handler.postDelayed(longPressRunnable, LONG_PRESS_INTERVAL);
             }
             else if (action == KeyEvent.ACTION_UP){
+                handler.removeCallbacks(longPressRunnable);
                 long time = event.getEventTime();
                 if (longPressTrigger){
-                    Handler handler = new Handler();
-                    Runnable r = new Runnable() {
-                        @Override
-                        public void run() {
-                            if (doubleClickTrigger){
-                                //Toast.makeText(MyAccessibilityService.this,"Single Click",Toast.LENGTH_SHORT).show();
-                                doubleClickTrigger=false;
-                                action("single");
-                            }
-                        }
-                    };
                     if (doubleClickTrigger && (time-buttonEventTime)< DOUBLE_CLICK_INTERVAL){
                         //Toast.makeText(this,"Double Click",Toast.LENGTH_SHORT).show();
                         doubleClickTrigger=false;
+                        handler.removeCallbacks(doubleClickRunnable);
                         action("double");
                     }
                     else {
                         doubleClickTrigger=true;
-                        handler.postDelayed(r, DOUBLE_CLICK_INTERVAL);
+                        handler.postDelayed(doubleClickRunnable, DOUBLE_CLICK_INTERVAL);
                     }
                 }
                 buttonEventTime=time;
@@ -123,8 +121,14 @@ public class MyAccessibilityService extends AccessibilityService {
         String activityName = sharedPreferences.getString(getString(R.string.target_activity_name)+button, null);
         String packageName = sharedPreferences.getString(getString(R.string.target_package_name)+button, null);
         String actionName = sharedPreferences.getString(getString(R.string.target_action)+button,null);
-        if (actionName!=null){
-            switch (actionName){
+        String targetName = sharedPreferences.getString(getString(R.string.target_name)+button,null);
+        int flag = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
+
+        if (Objects.equals(actionName, "device")){
+            if (targetName==null){
+                return false;
+            }
+            switch (targetName){
                 case "None":
                     return false;
                 case "Recent Apps":
@@ -153,13 +157,62 @@ public class MyAccessibilityService extends AccessibilityService {
                 case "Ringer Mode":
                     changeRingerMode();
                     break;
+                case "Voice Assistance":
+                    startActivity(new Intent(Intent.ACTION_VOICE_COMMAND).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    break;
             }
             return true;
         }
-        if (activityName==null || packageName==null){
+        else if (Objects.equals(actionName, "media")){
+            return mediaControl(targetName);
+        }
+        else if (Objects.equals(actionName, "app")) {
+            return !(activityName == null || packageName == null) && startActivity(packageName, activityName, flag);
+        }
+        else {
             return false;
         }
-        return startActivity(packageName,activityName);
+    }
+
+    private boolean mediaControl(String targetName) {
+        final String CMDPLAY = "play";
+        final String CMDSTOP = "stop";
+        final String CMDTOGGLEPAUSE = "togglepause";
+        final String CMDPAUSE = "pause";
+        final String CMDPREVIOUS = "previous";
+        final String CMDNEXT = "next";
+        final String SERVICECMD = "com.android.music.musicservicecommand";
+        final String CMDNAME = "command";
+
+        final String CMD;
+        switch (targetName){
+            case "Toggle Pause":
+                CMD=CMDTOGGLEPAUSE;
+                break;
+            case "Pause":
+                CMD=CMDPAUSE;
+                break;
+            case "Previous":
+                CMD=CMDPREVIOUS;
+                break;
+            case "Next":
+                CMD=CMDNEXT;
+                break;
+            case "Play":
+                CMD=CMDPLAY;
+                break;
+            case "Stop":
+                CMD=CMDSTOP;
+                break;
+            default:
+                CMD=CMDTOGGLEPAUSE;
+                break;
+        }
+        Intent i = new Intent(SERVICECMD);
+        Log.d("Media",CMD);
+        i.putExtra(CMDNAME , CMD);
+        sendBroadcast(i);
+        return true;
     }
 
     private void changeRingerMode() {
@@ -189,7 +242,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
         try {
             for (String cameraId: cameraManager.getCameraIdList()){
-                if (cameraManager.getCameraCharacteristics(cameraId).get(CameraCharacteristics.FLASH_INFO_AVAILABLE).booleanValue()){
+                if (cameraManager.getCameraCharacteristics(cameraId).get(CameraCharacteristics.FLASH_INFO_AVAILABLE)){
                     if (torch_status){
                         cameraManager.setTorchMode(cameraId,false);
                     }
@@ -199,26 +252,26 @@ public class MyAccessibilityService extends AccessibilityService {
                 }
             }
             return true;
-        } catch (CameraAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    private boolean startActivity(String packageName, String activityName){
+    private boolean startActivity(String packageName, String activityName, int flag){
         try{
             ComponentName name=new ComponentName(packageName,
                     activityName);
             Intent intent=new Intent(Intent.ACTION_MAIN);
 
-            intent.addCategory(Intent.CATEGORY_LAUNCHER);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
+            intent.setFlags(flag);
             intent.setComponent(name);
 
             startActivity(intent);
             return true;
         } catch (Exception e){
+            Log.d("StartActivity",e.toString());
             return false;
         }
     }
