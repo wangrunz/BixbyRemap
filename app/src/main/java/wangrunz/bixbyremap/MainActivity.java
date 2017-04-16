@@ -17,9 +17,13 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar DoubleClickSeekBar;
     private TextView LongPressInt;
     private TextView DoubleClickInt;
+
+    private SeekBar LongPressVibrateSeekBar;
+    private CheckBox LongPressVibrateCheckBox;
+    private TextView LongPressVibrateInt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,14 +135,14 @@ public class MainActivity extends AppCompatActivity {
         DoubleClickInt = (TextView)findViewById(R.id.DoubleClickInt);
         LongPressSeekBar.setProgress(sharedPreferences.getInt("longpressinterval",1000));
         DoubleClickSeekBar.setProgress(sharedPreferences.getInt("doubleclickinterval",200));
-        LongPressInt.setText(String.valueOf(LongPressSeekBar.getProgress()));
-        DoubleClickInt.setText(String.valueOf(DoubleClickSeekBar.getProgress()));
+        LongPressInt.setText(String.valueOf(LongPressSeekBar.getProgress())+"ms");
+        DoubleClickInt.setText(String.valueOf(DoubleClickSeekBar.getProgress())+"ms");
         LongPressSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressChangedValue = 0;
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressChangedValue=progress;
-                LongPressInt.setText(String.valueOf(progress));
+                LongPressInt.setText(String.valueOf(progress)+"ms");
             }
 
             @Override
@@ -154,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressChangedValue=progress;
-                DoubleClickInt.setText(String.valueOf(progress));
+                DoubleClickInt.setText(String.valueOf(progress)+"ms");
             }
 
             @Override
@@ -169,6 +177,46 @@ public class MainActivity extends AppCompatActivity {
                 editor.apply();
             }
         });
+
+        LongPressVibrateCheckBox = (CheckBox)findViewById(R.id.LongPressVibrateCheck);
+        LongPressVibrateSeekBar = (SeekBar) findViewById(R.id.LongPressVibrateSeek);
+        LongPressVibrateInt = (TextView)findViewById(R.id.LongPressVibrateInt);
+
+        boolean isVibrate = sharedPreferences.getBoolean("vibrate",false);
+        int vibrateTime = sharedPreferences.getInt("vibrate_time",1);
+        LongPressVibrateCheckBox.setChecked(isVibrate);
+        LongPressVibrateInt.setText(vibrateTime+"ms");
+        LongPressVibrateSeekBar.setProgress(vibrateTime);
+        LongPressVibrateCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("vibrate",isChecked);
+                editor.apply();
+            }
+        });
+        LongPressVibrateSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progressChangedValue=0;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressChangedValue = progress;
+                LongPressVibrateInt.setText(progress+"ms");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putInt("vibrate_time",progressChangedValue);
+                editor.apply();
+            }
+        });
+
+
     }
 
     public void showPopupMenu(Button button){

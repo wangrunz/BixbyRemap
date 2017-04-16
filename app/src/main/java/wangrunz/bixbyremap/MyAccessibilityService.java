@@ -11,6 +11,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -41,6 +42,12 @@ public class MyAccessibilityService extends AccessibilityService {
             if (longPressTrigger){
                 //Toast.makeText(MyAccessibilityService.this,"Long Press",Toast.LENGTH_SHORT).show();
                 longPressTrigger=false;
+                boolean isVibrate = sharedPreferences.getBoolean("vibrate", false);
+                int vibrateTime = sharedPreferences.getInt("vibrate_time",1);
+                if (isVibrate){
+                    Vibrator vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+                    vibrator.vibrate(vibrateTime);
+                }
                 action("long");
             }
         }
@@ -89,7 +96,9 @@ public class MyAccessibilityService extends AccessibilityService {
 
             if (action == KeyEvent.ACTION_DOWN){
                 longPressTrigger=true;
-                handler.postDelayed(longPressRunnable, LONG_PRESS_INTERVAL);
+                if (!doubleClickTrigger){
+                    handler.postDelayed(longPressRunnable, LONG_PRESS_INTERVAL);
+                }
             }
             else if (action == KeyEvent.ACTION_UP){
                 handler.removeCallbacks(longPressRunnable);
