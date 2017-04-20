@@ -25,7 +25,6 @@ public class MyAccessibilityService extends AccessibilityService {
 
     private boolean torch_status=false;
     private CameraManager cameraManager;
-    private AudioManager audioManager;
     private AudioManager mAudioManager;
     private NotificationManager notificationManager;
     private SharedPreferences sharedPreferences;
@@ -44,11 +43,11 @@ public class MyAccessibilityService extends AccessibilityService {
                 longPressTrigger=false;
                 boolean isVibrate = sharedPreferences.getBoolean("vibrate", false);
                 int vibrateTime = sharedPreferences.getInt("vibrate_time",1);
+                action("long");
                 if (isVibrate){
                     Vibrator vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
                     vibrator.vibrate(vibrateTime);
                 }
-                action("long");
             }
         }
     };
@@ -184,44 +183,38 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     private boolean mediaControl(String targetName) {
-        final String CMDPLAY = "play";
-        final String CMDSTOP = "stop";
-        final String CMDTOGGLEPAUSE = "togglepause";
-        final String CMDPAUSE = "pause";
-        final String CMDPREVIOUS = "previous";
-        final String CMDNEXT = "next";
-        final String SERVICECMD = "com.android.music.musicservicecommand";
-        final String CMDNAME = "command";
-
-        final String CMD;
         switch (targetName){
             case "Toggle Pause":
-                CMD=CMDTOGGLEPAUSE;
+                sendMediaButton(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
                 break;
             case "Pause":
-                CMD=CMDPAUSE;
+                sendMediaButton(KeyEvent.KEYCODE_MEDIA_PAUSE);
                 break;
             case "Previous":
-                CMD=CMDPREVIOUS;
+                sendMediaButton(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
                 break;
             case "Next":
-                CMD=CMDNEXT;
+                sendMediaButton(KeyEvent.KEYCODE_MEDIA_NEXT);
                 break;
             case "Play":
-                CMD=CMDPLAY;
+                sendMediaButton(KeyEvent.KEYCODE_MEDIA_PLAY);
                 break;
             case "Stop":
-                CMD=CMDSTOP;
+                sendMediaButton(KeyEvent.KEYCODE_MEDIA_STOP);
                 break;
             default:
-                CMD=CMDTOGGLEPAUSE;
+                sendMediaButton(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
                 break;
         }
-        Intent i = new Intent(SERVICECMD);
-        Log.d("Media",CMD);
-        i.putExtra(CMDNAME , CMD);
-        sendBroadcast(i);
         return true;
+    }
+
+    private void sendMediaButton(int keyCode) {
+        KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
+        mAudioManager.dispatchMediaKeyEvent(keyEvent);
+
+        keyEvent = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
+        mAudioManager.dispatchMediaKeyEvent(keyEvent);
     }
 
     private void changeRingerMode() {
@@ -232,10 +225,9 @@ public class MyAccessibilityService extends AccessibilityService {
             startActivity(intent);
         }
         else{
-            audioManager = (AudioManager)getSystemService(AUDIO_SERVICE);
-            ringer_mode = audioManager.getRingerMode();
+            ringer_mode = mAudioManager.getRingerMode();
             ringer_mode = (ringer_mode+1)%3;
-            audioManager.setRingerMode(ringer_mode);
+            mAudioManager.setRingerMode(ringer_mode);
         }
     }
 
